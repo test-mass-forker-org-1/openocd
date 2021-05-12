@@ -147,6 +147,9 @@ static int rp2040_call_rom_func(struct target *target, target_addr_t stack, uint
 #define BLOCK_SIZE (1ul << 16)
 #define BLOCK_ERASE_CMD 0xd8
 #define SECTOR_SIZE 4096
+
+// limits.h may have already defined PAGE_SIZE
+#undef PAGE_SIZE
 #define PAGE_SIZE 256
 
 struct rp2040_flash_bank {
