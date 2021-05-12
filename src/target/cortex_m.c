@@ -670,6 +670,13 @@ static int cortex_m_poll(struct target *target)
 		return retval;
 	}
 
+	/* if dhcsr read value is zero, then debug is lost, re-enter debug */
+	if (!cortex_m->dcb_dhcsr) {
+		retval = cortex_m_debug_entry(target);
+		if (retval != ERROR_OK)
+			return retval;
+	}
+
 	/* Recover from lockup.  See ARMv7-M architecture spec,
 	 * section B1.5.15 "Unrecoverable exception cases".
 	 */
@@ -2194,19 +2201,14 @@ int cortex_m_examine(struct target *target)
 			armv7m->arm.is_armv6m = true;
 		}
 
-		if (armv7m->fp_feature == FP_NONE &&
-		    armv7m->arm.core_cache->num_regs > ARMV7M_NUM_CORE_REGS_NOFP) {
-			/* free unavailable FPU registers */
-			size_t idx;
+		/* Check for FPU, otherwise mark FPU register as non-existent */
+		if (armv7m->fp_feature == FP_NONE)
+			for (size_t idx = ARMV7M_FPU_FIRST_REG; idx <= ARMV7M_FPU_LAST_REG; idx++)
+				armv7m->arm.core_cache->reg_list[idx].exist = false;
 
-			for (idx = ARMV7M_NUM_CORE_REGS_NOFP;
-			     idx < armv7m->arm.core_cache->num_regs;
-			     idx++) {
-				free(armv7m->arm.core_cache->reg_list[idx].feature);
-				free(armv7m->arm.core_cache->reg_list[idx].reg_data_type);
-			}
-			armv7m->arm.core_cache->num_regs = ARMV7M_NUM_CORE_REGS_NOFP;
-		}
+		if (!armv7m->arm.is_armv8m)
+			for (size_t idx = ARMV8M_FIRST_REG; idx <= ARMV8M_LAST_REG; idx++)
+				armv7m->arm.core_cache->reg_list[idx].exist = false;
 
 		if (!armv7m->stlink) {
 			if (i == 3 || i == 4)
@@ -2236,10 +2238,11 @@ int cortex_m_examine(struct target *target)
 		if (retval != ERROR_OK)
 			return retval;
 
-		if (armv7m->trace_config.config_type != TRACE_CONFIG_TYPE_DISABLED) {
+		if (armv7m->trace_config.config_type != TRACE_CONFIG_TYPE_DISABLED)
 			armv7m_trace_tpiu_config(target);
+
+		if (armv7m->trace_config.itm_deferred_config)
 			armv7m_trace_itm_config(target);
-		}
 
 		/* NOTE: FPB and DWT are both optional. */
 

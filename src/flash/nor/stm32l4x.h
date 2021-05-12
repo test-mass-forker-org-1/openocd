@@ -24,7 +24,8 @@
 #define FLASH_PER				(1 << 1)
 #define FLASH_MER1				(1 << 2)
 #define FLASH_PAGE_SHIFT		3
-#define FLASH_CR_BKER			(1 << 11)
+#define FLASH_BKER				(1 << 11)
+#define FLASH_BKER_G0			(1 << 13)
 #define FLASH_MER2				(1 << 15)
 #define FLASH_STRT				(1 << 16)
 #define FLASH_OPTSTRT			(1 << 17)
@@ -36,6 +37,7 @@
 
 /* FLASH_SR register bits */
 #define FLASH_BSY				(1 << 16)
+#define FLASH_BSY2				(1 << 17)
 
 /* Fast programming not used => related errors not used*/
 #define FLASH_PGSERR			(1 << 7) /* Programming sequence error */
@@ -56,9 +58,9 @@
 #define OPTKEY1					0x08192A3B
 #define OPTKEY2					0x4C5D6E7F
 
-#define RDP_LEVEL_0				0xAA
-#define RDP_LEVEL_1				0xBB
-#define RDP_LEVEL_2				0xCC
+/* FLASH_OPTR register bits */
+#define FLASH_RDP_MASK			0xFF
+#define FLASH_TZEN				(1 << 31)
 
 /* other registers */
 #define DBGMCU_IDCODE_G0		0x40015800
@@ -66,5 +68,6 @@
 #define DBGMCU_IDCODE_L5		0xE0044000
 
 #define STM32_FLASH_BANK_BASE	0x08000000
+#define STM32_FLASH_S_BANK_BASE	0x0C000000
 
 #endif

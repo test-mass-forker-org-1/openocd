@@ -159,6 +159,7 @@ extern int debug_level;
  * there was a sticky error, but it has been cleared. safe to retry
  */
 #define ERROR_STICKY_CLEARED			(-8)
+#define ERROR_OP_NOT_SUPPORTED			(-9)
 
 
 #endif /* OPENOCD_HELPER_LOG_H */

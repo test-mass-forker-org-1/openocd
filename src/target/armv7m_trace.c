@@ -86,7 +86,7 @@ int armv7m_trace_tpiu_config(struct target *target)
 {
 	struct armv7m_common *armv7m = target_to_armv7m(target);
 	struct armv7m_trace_config *trace_config = &armv7m->trace_config;
-	uint16_t prescaler;
+	uint16_t prescaler = TPIU_ACPR_MAX_SWOSCALER + 1;
 	int retval;
 
 	target_unregister_timer_callback(armv7m_poll_trace, target);
@@ -380,8 +380,9 @@ COMMAND_HANDLER(handle_itm_port_command)
 
 	if (CMD_CTX->mode == COMMAND_EXEC)
 		return armv7m_trace_itm_config(target);
-	else
-		return ERROR_OK;
+
+	armv7m->trace_config.itm_deferred_config = true;
+	return ERROR_OK;
 }
 
 COMMAND_HANDLER(handle_itm_ports_command)
@@ -399,8 +400,9 @@ COMMAND_HANDLER(handle_itm_ports_command)
 
 	if (CMD_CTX->mode == COMMAND_EXEC)
 		return armv7m_trace_itm_config(target);
-	else
-		return ERROR_OK;
+
+	armv7m->trace_config.itm_deferred_config = true;
+	return ERROR_OK;
 }
 
 static const struct command_registration tpiu_command_handlers[] = {
