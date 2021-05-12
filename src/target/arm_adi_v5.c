@@ -1850,6 +1850,47 @@ COMMAND_HANDLER(dap_apid_command)
 	return retval;
 }
 
+COMMAND_HANDLER(dap_memap_command)
+{
+	struct adiv5_dap *dap = adiv5_get_dap(CMD_DATA);
+
+	uint32_t apsel, reg_addr, value;
+	int retval;
+
+	//ap_num reg_addr [value]
+	if (CMD_ARGC != 2 && CMD_ARGC != 3)
+		return ERROR_COMMAND_SYNTAX_ERROR;
+	
+	COMMAND_PARSE_NUMBER(u32, CMD_ARGV[0], apsel);
+	/* AP address is in bits 31:24 of DP_SELECT */
+	if (apsel >= 256)
+		return ERROR_COMMAND_SYNTAX_ERROR;
+
+	COMMAND_PARSE_NUMBER(u32, CMD_ARGV[1], reg_addr);
+
+	// We need to init first
+	retval = dap_dp_init(dap);
+	if (retval != ERROR_OK) {
+		LOG_ERROR("Could not initialize the debug port");
+		return retval;
+	}
+
+	if (CMD_ARGC == 3) {
+		COMMAND_PARSE_NUMBER(u32, CMD_ARGV[2], value);
+
+		command_print(CMD, "Setting MEM-AP register @ 0x%8.8" PRIx32 " to 0x%8.8" PRIx32, reg_addr, value);
+		
+		retval = mem_ap_write_atomic_u32(dap_ap(dap, apsel), reg_addr, value);
+	} else {
+		retval = mem_ap_read_atomic_u32(dap_ap(dap, apsel), reg_addr, &value);
+		if (retval == ERROR_OK) {
+			command_print(CMD, "MEM-AP register @ 0x%8.8" PRIx32 " value is 0x%8.8" PRIx32, reg_addr, value);
+		}
+	}
+
+	return retval;
+}
+
 COMMAND_HANDLER(dap_apreg_command)
 {
 	struct adiv5_dap *dap = adiv5_get_dap(CMD_DATA);
@@ -2011,6 +2052,13 @@ const struct command_registration dap_instance_commands[] = {
 		.help = "set/get number of extra tck for MEM-AP memory "
 			"bus access [0-255]",
 		.usage = "[cycles]",
+	},
+	{
+		.name = "memap",
+		.handler = dap_memap_command,
+		.mode = COMMAND_EXEC,
+		.help = "Set / read MEM-AP register value (supports modification prior to target examination)",
+		.usage = "ap_num reg_addr [value]",
 	},
 	{
 		.name = "ti_be_32_quirks",
