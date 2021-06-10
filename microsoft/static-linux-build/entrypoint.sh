@@ -1,4 +1,6 @@
 #!/bin/sh
+# Copyright (c) Microsoft Corporation.
+# Licensed under the GPL-2.0-only license.
 
 set -o errexit
 set -o pipefail
