@@ -177,6 +177,18 @@ static const struct ThreadX_params ThreadX_params_list[] = {
 	get_stacking_info_arm926ejs,		/* fn_get_stacking_info */
 	is_thread_id_valid_arm926ejs,		/* fn_is_thread_id_valid */
 	},
+	{
+	"hla_target",				/* target_name */
+	4,							/* pointer_width; */
+	8,							/* thread_stack_offset; */
+	40,							/* thread_name_offset; */
+	48,							/* thread_state_offset; */
+	136,						/* thread_next_offset */
+	&rtos_standard_Cortex_M3_stacking,	/* stacking_info */
+	1,							/* stacking_info_nb */
+	NULL,						/* fn_get_stacking_info */
+	NULL,						/* fn_is_thread_id_valid */
+	},
 };
 
 #define THREADX_NUM_PARAMS ((int)(sizeof(ThreadX_params_list)/sizeof(struct ThreadX_params)))
