@@ -79,7 +79,8 @@ readonly openocd_name="openocd-${openocd_tag}-linux"
 ./bootstrap
 ./configure --build="$(${workspace_dir}/config.guess)" \
     --prefix="${install_dir}/${openocd_name}" \
-    --enable-static --enable-all-static --disable-shared
+    --enable-static --enable-all-static --disable-shared \
+    --enable-picoprobe
 make
 make install-strip
 tar -C "${install_dir}" -czf "${workspace_dir}/${openocd_name}.tar.gz" "${openocd_name}"
