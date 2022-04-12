@@ -67,6 +67,12 @@ make
 make install-strip
 
 cd "${workspace_dir}"
+# Because of CVE-2022-24765, we have to explictly list the repos in the GitHub
+# workspace directory.
+git config --global --add safe.directory "${workspace_dir}"
+git config --global --add safe.directory "${workspace_dir}/jimtcl"
+git config --global --add safe.directory "${workspace_dir}/src/jtag/drivers/libjaylink"
+git config --global --add safe.directory "${workspace_dir}/tools/git2cl"
 openocd_tag="`git tag --points-at HEAD`"
 [ -z "${openocd_tag}" ] && openocd_tag="`git rev-parse --short HEAD`"
 readonly openocd_name="openocd-${openocd_tag}-linux"
